@@ -7,8 +7,203 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
     <copyright>Powered by [Hugo](//gohugo.io). Theme by [hugo-theme-arch](https://github.com/syui/hugo-theme-arch).</copyright>
-    <lastBuildDate>Sun, 18 Dec 2016 02:08:49 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 31 Dec 2016 18:52:59 +0900</lastBuildDate>
     <atom:link href="https://johshisha.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>ラズパイでSiriのような音声認識BOTを作ってみた part1</title>
+      <link>https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1</link>
+      <pubDate>Sat, 31 Dec 2016 18:52:59 +0900</pubDate>
+      
+      <guid>https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1</guid>
+      <description>
+
+&lt;p&gt;ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．&lt;/p&gt;
+
+&lt;h2 id=&#34;仕様&#34;&gt;仕様&lt;/h2&gt;
+
+&lt;p&gt;今回作るもののイメージはこんな感じ&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;私「ヘイ，ラズパイ！」
+Raspi「ポンポンっ」（コマンド受け付けますよ音）
+私「今日の天気は？」
+Raspi「今日の天気は晴れです」
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;これを再現したい&lt;/p&gt;
+
+&lt;h2 id=&#34;実装&#34;&gt;実装&lt;/h2&gt;
+
+&lt;p&gt;音声認識 =&amp;gt; &lt;a href=&#34;http://julius.osdn.jp/&#34;&gt;Julius&lt;/a&gt;&lt;br /&gt;
+天気情報取得 =&amp;gt; Ruby&lt;/p&gt;
+
+&lt;p&gt;JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．&lt;/p&gt;
+
+&lt;h2 id=&#34;手順&#34;&gt;手順&lt;/h2&gt;
+
+&lt;h3 id=&#34;juliusのインストール&#34;&gt;Juliusのインストール&lt;/h3&gt;
+
+&lt;p&gt;ディクテーションキット&lt;br /&gt;
+- Mac&lt;br /&gt;
+&lt;a href=&#34;http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz&#34;&gt;http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz&lt;/a&gt;
+- Linux&lt;br /&gt;
+&lt;a href=&#34;https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz&#34;&gt;https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz&lt;/a&gt;
+をダウンロードしてくる&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ tar xvzf dictation-kit-v4.3.1-osx.tgz
+$ cd dictation-kit-v4.3.1-osx
+$ ./run-gmm.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;これでJuliusが起動するはず
+(最新版は4.4  &lt;a href=&#34;https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip&#34;&gt;https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip&lt;/a&gt; だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)&lt;/p&gt;
+
+&lt;p&gt;適当にしゃべってみると&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;&amp;lt;&amp;lt; please speak &amp;gt;&amp;gt;&amp;gt;Warning: strip: sample 0-66 has zero value, stripped
+pass1_best:  こんにちは
+sentence1:  こんにちは 。
+&amp;lt;&amp;lt;&amp;lt; please speak &amp;gt;&amp;gt;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;うまくうごいてそう
+このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+今回は&lt;code&gt;model&lt;/code&gt;,&lt;code&gt;am-gmm.jconf&lt;/code&gt;,&lt;code&gt;bin/julius&lt;/code&gt;,&lt;code&gt;yomi2voca.pl&lt;/code&gt;を取り出してきて適当に新しいフォルダを作る．&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ mkdir julius
+$ cp dictation-kit-v4.3.1-osx/model dictation-kit-v4.3.1-osx/am-gmm.jconf dictation-kit-v4.3.1-osx/bin/julius dictation-kit-v4.3.1-osx/bin/yomi2voca.pl julius
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;単語の登録&#34;&gt;単語の登録&lt;/h3&gt;
+
+&lt;p&gt;動くことが確認できたので次に，自分が認識して欲しい単語の辞書を作る(julius/word.yomi)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#julius/word.yomi
+ヘイラズパイ へいらずぱい
+今日の天気 きょうのてんき
+明日の天気 あしたのてんき
+天気 てんき
+今何時 いまなんじ
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;そしてこれらをJuliusが使える辞書形式に変換する．
+Juliusは文字コードがEUC-JPなので変換して，辞書形式に変換する．&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ iconv -f utf-8 -t eucjp julius/word.yomi | ./julius/yomi2voca.pl &amp;gt; ./julius/word.dic
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;登録した辞書を用いる設定ファイルの作成&#34;&gt;登録した辞書を用いる設定ファイルの作成&lt;/h3&gt;
+
+&lt;p&gt;単語の登録が完了したので，反映させるため設定ファイル(julius/word.jconf)を作成する．&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#julius/word.jconf
+-w word.dic
+-v model/lang_m/bccwj.60k.htkdic
+-h model/phone_m/hmmdefs_ptm_gid.binhmm
+-hlist model/phone_m/logicalTri
+-n 5
+-output 1
+-input mic
+-zmeanframe
+-rejectshort 800
+-charconv EUC-JP UTF-8
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;※この際，設定ファイルに記載する相対パスは，設定ファイルを起点とするパスになる．&lt;/p&gt;
+
+&lt;h3 id=&#34;起動の確認&#34;&gt;起動の確認&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;./julius/julius -C julius/word.jconf -C julius/am-gmm.jconf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上記のコマンドで起動できる．&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pass1_best: ヘイラズパイ
+pass1_best_wordseq: ヘイラズパイ
+pass1_best_phonemeseq: silB h e i r a z u p a i silE
+pass1_best_score: -2283.777832
+sentence1: ヘイラズパイ
+wseq1: ヘイラズパイ
+phseq1: silB h e i r a z u p a i silE
+cmscore1: 1.000
+score1: -2283.777832
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;こんな感じに今まで登録されていな方単語が認識されるようになった．
+※注意すべきなのが，登録した単語ありきの認識をするため，なにかしらの言葉を発すると登録した単語のどれかに割り当ててしまうということ．&lt;/p&gt;
+
+&lt;h3 id=&#34;rubyとのつなぎ込み&#34;&gt;Rubyとのつなぎ込み&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/hadzimme/julius&#34;&gt;julius gem&lt;/a&gt;を使うと簡単にできる．&lt;br /&gt;
+その際，Juliusはモジュールモードで起動しておくこと．(julius-server.sh)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# julius-server.sh
+./julius/julius -C julius/word.jconf -C julius/am-gmm.jconf -module
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Rubyスクリプト(main.rb)は以下のようにした．&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# main.rb
+SRC_DIR = File.expand_path(File.dirname(__FILE__))
+
+require &#39;rubygems&#39;
+require &#39;julius&#39;
+
+class HeyRaspi
+  def run(julius)
+    begin
+      julius.each_message do |message, prompt|
+        case message.name
+        when :RECOGOUT
+          prompt.pause
+
+          shypo = message.first
+          whypo = shypo.first
+          confidence = whypo.cm.to_f
+
+          puts &amp;quot;#{message.sentence} #{confidence}&amp;quot;
+
+          prompt.resume
+        end
+      end
+    rescue REXML::ParseException
+      puts &amp;quot;retry…&amp;quot;
+      retry
+    end
+  end
+end
+
+puts &amp;quot;接続中…&amp;quot;
+julius = Julius.new
+
+puts &amp;quot;準備OK！&amp;quot;
+hey_raspi = HeyRaspi.new
+hey_raspi.run(julius)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ターミナルを二つ立ち上げ，ひとつで&lt;code&gt;julius-server.sh&lt;/code&gt;を実行．&lt;br /&gt;
+もう一つは&lt;code&gt;main.rb&lt;/code&gt;を実行．&lt;/p&gt;
+
+&lt;p&gt;そして，準備OKと表示されたら，話しかける！&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;接続中…
+準備OK！
+ヘイラズパイ 1.0
+今日の天気 0.997
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;いい感じに認識できた〜&lt;br /&gt;
+あとはここにコマンドの中身を追加すれば完了！&lt;/p&gt;
+
+&lt;h3 id=&#34;天気の取得&#34;&gt;天気の取得&lt;/h3&gt;
+
+&lt;p&gt;は次回〜&lt;/p&gt;
+
+&lt;p&gt;とりあえず，今回は音声認識BOTの外枠だけ作成した．&lt;br /&gt;
+これの中身を変えるとそれぞれの好きなBOTが作れるのではないでしょうか〜&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title></title>

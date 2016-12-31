@@ -28,7 +28,7 @@
 <meta property="og:url" content="https://johshisha.github.io/blog/" />
 
 
-<meta property="og:updated_time" content="2016-12-18T02:08:49&#43;09:00"/>
+<meta property="og:updated_time" content="2016-12-31T18:52:59&#43;09:00"/>
 
 
 
@@ -148,6 +148,78 @@
             </a>
 
             <header class="article-header">
+    <a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" class="permalink">
+    <h1 class="article-title" itemprop="name">
+        ラズパイでSiriのような音声認識BOTを作ってみた part1
+    </h1>
+    </a>
+	<time datetime="2016-12-31 18:52:59 &#43;0900 JST" itemprop="datePublished">2016-12-31</time>
+	
+    <div class="article-meta">
+
+        
+        
+        <div class="article-category">
+            <i class="fa fa-folder"></i>
+            
+            <a class="article-category-link" href="https://johshisha.github.io/blog/categories/raspberrypi">RaspberryPi</a>
+            
+            
+        </div>
+        
+        
+        
+        <div class="article-category">
+		<i class="fa fa-chevron-right"></i>
+		
+            
+            <a class="article-category-link" href="https://johshisha.github.io/blog/tags/raspberrypi">RaspberryPi</a>
+            , 
+            
+            <a class="article-category-link" href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98">音声認識</a>
+            
+            
+        </div>
+        
+    </div>
+</header>
+
+            <div class="article-entry" itemprop="articleBody">
+                <p>
+                    ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+仕様 今回作るもののイメージはこんな感じ
+私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
+実装 音声認識 =&gt; Julius
+天気情報取得 =&gt; Ruby
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+手順 Juliusのインストール ディクテーションキット
+- Mac
+http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
+https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
+適当にしゃべってみると
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+$ mkdir julius $ cp dictation-kit-v4. ...
+                </p>
+                <p class="article-more-link">
+                    <a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1">
+			    Read more
+			    
+                    </a>
+                </p>
+            </div>
+	    
+        </div>
+    </article>
+    
+    <article class="article article-type-post" itemscope="" itemprop="blogPost">
+
+	    <div class="article-inner">
+
+            
+            </a>
+
+            <header class="article-header">
     <a href="https://johshisha.github.io/blog/2016/12/17/hello_hugo" class="permalink">
     <h1 class="article-title" itemprop="name">
         hello_hugo
@@ -217,6 +289,12 @@
             
 	    <li>
 		    
+		<a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" class="move">ラズパイでSiriのような音声認識BOTを作ってみた part1</a>
+
+            </li>
+            
+	    <li>
+		    
 		<a href="https://johshisha.github.io/blog/2016/12/17/hello_hugo" class="move">hello_hugo</a>
 
             </li>
@@ -237,6 +315,13 @@
             <li class="category-list-item">
                 <a class="category-list-link" href="https://johshisha.github.io/blog/categories/hugo">
                     hugo
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/categories/raspberrypi">
+                    raspberrypi
                 </a>
                 <span class="category-list-count">1</span>
             </li>
@@ -263,6 +348,20 @@
                 <span class="category-list-count">1</span>
             </li>
             
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/tags/raspberrypi">
+                    raspberrypi
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98">
+                    音声認識
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
         </ul>
     </div>
 </div>
@@ -278,6 +377,10 @@
     <div class="widget tagcloud">
         
         <a href="https://johshisha.github.io/blog/tags/hugo" style="font-size: 12px;">hugo</a>
+        
+        <a href="https://johshisha.github.io/blog/tags/raspberrypi" style="font-size: 12px;">raspberrypi</a>
+        
+        <a href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98" style="font-size: 12px;">音声認識</a>
         
     </div>
 </div>

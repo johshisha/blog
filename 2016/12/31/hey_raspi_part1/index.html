@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    
+    <title>ラズパイでSiriのような音声認識BOTを作ってみた part1</title>
+    <meta name="generator" content="Hugo 0.17" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="description" content="johshisha&#39;s blog">
+    
+    <link rel="icon" href="https://johshisha.github.io/blog/favicon.ico">
+    <link rel="apple-touch-icon" href="https://johshisha.github.io/blog/apple-touch-icon.png" />
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/css/style.css">
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/css/monokai.css">
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/fancybox/jquery.fancybox.css">
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/font/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/font/icomoon/css/icomoon.css">
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/css/font.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
+    <meta property="og:title" content="ラズパイでSiriのような音声認識BOTを作ってみた part1" />
+<meta property="og:description" content="ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+仕様 今回作るもののイメージはこんな感じ
+私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
+実装 音声認識 =&gt; Julius
+天気情報取得 =&gt; Ruby
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+手順 Juliusのインストール ディクテーションキット
+- Mac
+http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
+https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
+適当にしゃべってみると
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+$ mkdir julius $ cp dictation-kit-v4." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" />
+
+
+<meta property="og:updated_time" content="2016-12-31T18:52:59&#43;09:00"/>
+
+
+
+
+
+
+
+
+
+
+    
+    
+<meta itemprop="name" content="ラズパイでSiriのような音声認識BOTを作ってみた part1">
+<meta itemprop="description" content="ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+仕様 今回作るもののイメージはこんな感じ
+私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
+実装 音声認識 =&gt; Julius
+天気情報取得 =&gt; Ruby
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+手順 Juliusのインストール ディクテーションキット
+- Mac
+http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
+https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
+適当にしゃべってみると
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+$ mkdir julius $ cp dictation-kit-v4.">
+
+
+<meta itemprop="dateModified" content="2016-12-31T18:52:59&#43;09:00" />
+<meta itemprop="wordCount" content="258">
+
+
+
+<meta itemprop="keywords" content="hugo,raspberrypi,hugo,raspberrypi,音声認識," />
+
+    
+
+  <meta name="twitter:card" content="summary"/>
+
+
+
+<meta name="twitter:title" content="ラズパイでSiriのような音声認識BOTを作ってみた part1"/>
+<meta name="twitter:description" content="ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+仕様 今回作るもののイメージはこんな感じ
+私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
+実装 音声認識 =&gt; Julius
+天気情報取得 =&gt; Ruby
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+手順 Juliusのインストール ディクテーションキット
+- Mac
+http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
+https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
+適当にしゃべってみると
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+$ mkdir julius $ cp dictation-kit-v4."/>
+<meta name="twitter:site" content="@johshisha"/>
+
+
+    <script src="https://johshisha.github.io/blog/bower_components/jquery/dist/jquery-2.2.0.min.js "></script>
+    
+    <script src="https://johshisha.github.io/blog/fancybox/jquery.fancybox.pack.js"></script>
+    <script src="https://johshisha.github.io/blog/js/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+    
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+    <script src="https://johshisha.github.io/blog/js/jquery.hotkeys.js "></script>
+
+    
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/bower_components/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/bower_components/bootstrap/css/dropdowns-enhancement.css">
+    <script src="https://johshisha.github.io/blog/bower_components/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://johshisha.github.io/blog/bower_components/bootstrap/js/dropdowns-enhancement.js"></script>
+    <link rel="stylesheet" href="https://johshisha.github.io/blog/css/bootstrap.css">
+
+    
+    <link href="https://johshisha.github.io/blog/bower_components/talaria/dist/talaria.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://johshisha.github.io/blog/bower_components/bluebird/js/browser/bluebird.js"></script>
+    <script type="text/javascript" src="https://johshisha.github.io/blog/bower_components/talaria/dist/talaria.js"></script>
+
+    
+    
+
+</head>
+<body>
+<div class="container">
+
+<header id="header">
+  <div id="header-main" class="header-inner">
+    <div class="outer">
+
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+
+    	    <div class="navbar-header">
+      		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+      		  <span class="sr-only">Toggle navigation</span>
+      		  <span class="icon-bar"></span>
+      		  <span class="icon-bar"></span>
+      		  <span class="icon-bar"></span>
+      		</button>
+		    <h1>
+					<a class="site-title" href="https://johshisha.github.io/blog/">johshisha's blog</a>
+		    </h1>
+	    </div>
+
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+    
+        
+        
+        
+        <li><a href="https://johshisha.github.io/blog/about">About</a></li>
+
+          
+
+      </ul>
+    </div>
+
+  </div>
+</nav>
+
+</header>
+
+
+<div id="container">
+   <div class="outer">
+    <section id="main">
+    <article>
+        <div class="article-inner">
+            
+
+            <header class="article-header">
+    <a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" class="permalink">
+    <h1 class="article-title" itemprop="name">
+        ラズパイでSiriのような音声認識BOTを作ってみた part1
+    </h1>
+    </a>
+	<time datetime="2016-12-31 18:52:59 &#43;0900 JST" itemprop="datePublished">2016-12-31</time>
+	
+    <div class="article-meta">
+
+        
+        
+        <div class="article-category">
+            <i class="fa fa-folder"></i>
+            
+            <a class="article-category-link" href="https://johshisha.github.io/blog/categories/raspberrypi">RaspberryPi</a>
+            
+            
+        </div>
+        
+        
+        
+        <div class="article-category">
+		<i class="fa fa-chevron-right"></i>
+		
+            
+            <a class="article-category-link" href="https://johshisha.github.io/blog/tags/raspberrypi">RaspberryPi</a>
+            , 
+            
+            <a class="article-category-link" href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98">音声認識</a>
+            
+            
+        </div>
+        
+    </div>
+</header>
+
+            <div class="article-entry" itemprop="articleBody">
+                
+
+<p>ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．</p>
+
+<h2 id="仕様">仕様</h2>
+
+<p>今回作るもののイメージはこんな感じ</p>
+
+<pre><code>私「ヘイ，ラズパイ！」
+Raspi「ポンポンっ」（コマンド受け付けますよ音）
+私「今日の天気は？」
+Raspi「今日の天気は晴れです」
+</code></pre>
+
+<p>これを再現したい</p>
+
+<h2 id="実装">実装</h2>
+
+<p>音声認識 =&gt; <a href="http://julius.osdn.jp/">Julius</a><br />
+天気情報取得 =&gt; Ruby</p>
+
+<p>JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．</p>
+
+<h2 id="手順">手順</h2>
+
+<h3 id="juliusのインストール">Juliusのインストール</h3>
+
+<p>ディクテーションキット<br />
+- Mac<br />
+<a href="http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz">http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz</a>
+- Linux<br />
+<a href="https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz">https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz</a>
+をダウンロードしてくる</p>
+
+<pre><code>$ tar xvzf dictation-kit-v4.3.1-osx.tgz
+$ cd dictation-kit-v4.3.1-osx
+$ ./run-gmm.sh
+</code></pre>
+
+<p>これでJuliusが起動するはず
+(最新版は4.4  <a href="https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip">https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip</a> だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)</p>
+
+<p>適当にしゃべってみると</p>
+
+<pre><code>&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped
+pass1_best:  こんにちは
+sentence1:  こんにちは 。
+&lt;&lt;&lt; please speak &gt;&gt;&gt;
+</code></pre>
+
+<p>うまくうごいてそう
+このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+今回は<code>model</code>,<code>am-gmm.jconf</code>,<code>bin/julius</code>,<code>yomi2voca.pl</code>を取り出してきて適当に新しいフォルダを作る．</p>
+
+<pre><code>$ mkdir julius
+$ cp dictation-kit-v4.3.1-osx/model dictation-kit-v4.3.1-osx/am-gmm.jconf dictation-kit-v4.3.1-osx/bin/julius dictation-kit-v4.3.1-osx/bin/yomi2voca.pl julius
+</code></pre>
+
+<h3 id="単語の登録">単語の登録</h3>
+
+<p>動くことが確認できたので次に，自分が認識して欲しい単語の辞書を作る(julius/word.yomi)</p>
+
+<pre><code>#julius/word.yomi
+ヘイラズパイ へいらずぱい
+今日の天気 きょうのてんき
+明日の天気 あしたのてんき
+天気 てんき
+今何時 いまなんじ
+</code></pre>
+
+<p>そしてこれらをJuliusが使える辞書形式に変換する．
+Juliusは文字コードがEUC-JPなので変換して，辞書形式に変換する．</p>
+
+<pre><code>$ iconv -f utf-8 -t eucjp julius/word.yomi | ./julius/yomi2voca.pl &gt; ./julius/word.dic
+</code></pre>
+
+<h3 id="登録した辞書を用いる設定ファイルの作成">登録した辞書を用いる設定ファイルの作成</h3>
+
+<p>単語の登録が完了したので，反映させるため設定ファイル(julius/word.jconf)を作成する．</p>
+
+<pre><code>#julius/word.jconf
+-w word.dic
+-v model/lang_m/bccwj.60k.htkdic
+-h model/phone_m/hmmdefs_ptm_gid.binhmm
+-hlist model/phone_m/logicalTri
+-n 5
+-output 1
+-input mic
+-zmeanframe
+-rejectshort 800
+-charconv EUC-JP UTF-8
+</code></pre>
+
+<p>※この際，設定ファイルに記載する相対パスは，設定ファイルを起点とするパスになる．</p>
+
+<h3 id="起動の確認">起動の確認</h3>
+
+<pre><code>./julius/julius -C julius/word.jconf -C julius/am-gmm.jconf
+</code></pre>
+
+<p>上記のコマンドで起動できる．</p>
+
+<pre><code>pass1_best: ヘイラズパイ
+pass1_best_wordseq: ヘイラズパイ
+pass1_best_phonemeseq: silB h e i r a z u p a i silE
+pass1_best_score: -2283.777832
+sentence1: ヘイラズパイ
+wseq1: ヘイラズパイ
+phseq1: silB h e i r a z u p a i silE
+cmscore1: 1.000
+score1: -2283.777832
+</code></pre>
+
+<p>こんな感じに今まで登録されていな方単語が認識されるようになった．
+※注意すべきなのが，登録した単語ありきの認識をするため，なにかしらの言葉を発すると登録した単語のどれかに割り当ててしまうということ．</p>
+
+<h3 id="rubyとのつなぎ込み">Rubyとのつなぎ込み</h3>
+
+<p><a href="https://github.com/hadzimme/julius">julius gem</a>を使うと簡単にできる．<br />
+その際，Juliusはモジュールモードで起動しておくこと．(julius-server.sh)</p>
+
+<pre><code># julius-server.sh
+./julius/julius -C julius/word.jconf -C julius/am-gmm.jconf -module
+</code></pre>
+
+<p>Rubyスクリプト(main.rb)は以下のようにした．</p>
+
+<pre><code># main.rb
+SRC_DIR = File.expand_path(File.dirname(__FILE__))
+
+require 'rubygems'
+require 'julius'
+
+class HeyRaspi
+  def run(julius)
+    begin
+      julius.each_message do |message, prompt|
+        case message.name
+        when :RECOGOUT
+          prompt.pause
+
+          shypo = message.first
+          whypo = shypo.first
+          confidence = whypo.cm.to_f
+
+          puts &quot;#{message.sentence} #{confidence}&quot;
+
+          prompt.resume
+        end
+      end
+    rescue REXML::ParseException
+      puts &quot;retry…&quot;
+      retry
+    end
+  end
+end
+
+puts &quot;接続中…&quot;
+julius = Julius.new
+
+puts &quot;準備OK！&quot;
+hey_raspi = HeyRaspi.new
+hey_raspi.run(julius)
+</code></pre>
+
+<p>ターミナルを二つ立ち上げ，ひとつで<code>julius-server.sh</code>を実行．<br />
+もう一つは<code>main.rb</code>を実行．</p>
+
+<p>そして，準備OKと表示されたら，話しかける！</p>
+
+<pre><code>接続中…
+準備OK！
+ヘイラズパイ 1.0
+今日の天気 0.997
+</code></pre>
+
+<p>いい感じに認識できた〜<br />
+あとはここにコマンドの中身を追加すれば完了！</p>
+
+<h3 id="天気の取得">天気の取得</h3>
+
+<p>は次回〜</p>
+
+<p>とりあえず，今回は音声認識BOTの外枠だけ作成した．<br />
+これの中身を変えるとそれぞれの好きなBOTが作れるのではないでしょうか〜</p>
+
+            </div>
+
+            <footer class="article-footer">
+    <a href="http://twitter.com/share?url=https%3a%2f%2fjohshisha.github.io%2fblog%2f2016%2f12%2f31%2fhey_raspi_part1&text=%e3%83%a9%e3%82%ba%e3%83%91%e3%82%a4%e3%81%a7Siri%e3%81%ae%e3%82%88%e3%81%86%e3%81%aa%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98BOT%e3%82%92%e4%bd%9c%e3%81%a3%e3%81%a6%e3%81%bf%e3%81%9f%20part1" target="_blank" title="Twitter" >
+    	<span class="article-share-link">
+    	    Share
+	</span>
+    </a>
+    
+    
+
+    <a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1/#disqus_thread" class="article-comment-link">
+        Comments
+    </a>
+    
+</footer>
+
+        </div>
+
+        
+
+
+  <script type="text/javascript">
+   talaria.init({REPOSITORY_NAME: 'hugo-theme-arch',
+                 GITHUB_USERNAME: 'johshisha'});
+  </script>
+    </article>
+
+    <section id="comments">
+
+        <div id="disqus_thread">
+            <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'https-johshisha-github-io-blog';
+    var disqus_identifier = 'https:\/\/johshisha.github.io\/blog\/2016\/12\/31\/hey_raspi_part1';
+    var disqus_title = 'ラズパイでSiriのような音声認識BOTを作ってみた part1';
+    var disqus_url = 'https:\/\/johshisha.github.io\/blog\/2016\/12\/31\/hey_raspi_part1';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        </div>
+    </section>
+</section>
+
+    <aside id="sidebar">
+    
+
+<div class="widget-wrap">
+    <div class="widget">
+        <ul id="recent-post">
+		<li id="first-recent"><a href="sitemap.xml" id="firstmove" class="move"><h3 class="widget-title">
+			Latest News
+					
+    </h3></a></li>
+            
+	    <li>
+		    
+		<a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" class="move">ラズパイでSiriのような音声認識BOTを作ってみた part1</a>
+
+            </li>
+            
+	    <li>
+		    
+		<a href="https://johshisha.github.io/blog/2016/12/17/hello_hugo" class="move">hello_hugo</a>
+
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+
+    
+
+<div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+        <ul class="category-list">
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/categories/hugo">
+                    hugo
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/categories/raspberrypi">
+                    raspberrypi
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+
+    
+
+<div class="widget-wrap">
+    <h3 class="widget-title">
+        Tags
+    </h3>
+    <div class="widget">
+        <ul class="category-list">
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/tags/hugo">
+                    hugo
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/tags/raspberrypi">
+                    raspberrypi
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+            <li class="category-list-item">
+                <a class="category-list-link" href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98">
+                    音声認識
+                </a>
+                <span class="category-list-count">1</span>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+
+    
+
+<div class="widget-wrap">
+    <h3 class="widget-title">
+	    Tag cloud
+    </h3>
+    <div class="widget tagcloud">
+        
+        <a href="https://johshisha.github.io/blog/tags/hugo" style="font-size: 12px;">hugo</a>
+        
+        <a href="https://johshisha.github.io/blog/tags/raspberrypi" style="font-size: 12px;">raspberrypi</a>
+        
+        <a href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98" style="font-size: 12px;">音声認識</a>
+        
+    </div>
+</div>
+
+
+
+
+    
+</aside>
+
+</div>
+</div>
+
+<footer id="footer">
+  <div class="outer">
+    <div id="footer-info" class="inner">
+	    &copy; 2016 <i class="fa fa-github"></i> <a href="https://github.com/johshisha">johshisha</a>. <br>
+      Powered by <a href="//gohugo.io">Hugo</a>. Theme by <a href="https://github.com/syui/hugo-theme-arch">hugo-theme-arch</a>.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
