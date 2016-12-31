@@ -17,7 +17,8 @@
       <guid>https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1</guid>
       <description>
 
-&lt;p&gt;ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．&lt;/p&gt;
+&lt;p&gt;ラズパイにSiriみたいなことをさせたい．&lt;br /&gt;
+が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．&lt;/p&gt;
 
 &lt;h2 id=&#34;仕様&#34;&gt;仕様&lt;/h2&gt;
 
@@ -34,9 +35,9 @@ Raspi「今日の天気は晴れです」
 &lt;h2 id=&#34;実装&#34;&gt;実装&lt;/h2&gt;
 
 &lt;p&gt;音声認識 =&amp;gt; &lt;a href=&#34;http://julius.osdn.jp/&#34;&gt;Julius&lt;/a&gt;&lt;br /&gt;
-天気情報取得 =&amp;gt; Ruby&lt;/p&gt;
+天気情報取得 =&amp;gt;  &lt;a href=&#34;http://openweathermap.org/&#34;&gt;OpenWeatherMap&lt;/a&gt;(Ruby)&lt;/p&gt;
 
-&lt;p&gt;JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+&lt;p&gt;JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．&lt;br /&gt;
 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．&lt;/p&gt;
 
 &lt;h2 id=&#34;手順&#34;&gt;手順&lt;/h2&gt;
@@ -44,11 +45,12 @@ Raspi「今日の天気は晴れです」
 &lt;h3 id=&#34;juliusのインストール&#34;&gt;Juliusのインストール&lt;/h3&gt;
 
 &lt;p&gt;ディクテーションキット&lt;br /&gt;
-- Mac&lt;br /&gt;
+- Mac
 &lt;a href=&#34;http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz&#34;&gt;http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz&lt;/a&gt;
-- Linux&lt;br /&gt;
-&lt;a href=&#34;https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz&#34;&gt;https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz&lt;/a&gt;
-をダウンロードしてくる&lt;/p&gt;
+- Linux
+&lt;a href=&#34;https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz&#34;&gt;https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;をダウンロードしてくる&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;$ tar xvzf dictation-kit-v4.3.1-osx.tgz
 $ cd dictation-kit-v4.3.1-osx
@@ -67,7 +69,7 @@ sentence1:  こんにちは 。
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;うまくうごいてそう
-このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．&lt;br /&gt;
 今回は&lt;code&gt;model&lt;/code&gt;,&lt;code&gt;am-gmm.jconf&lt;/code&gt;,&lt;code&gt;bin/julius&lt;/code&gt;,&lt;code&gt;yomi2voca.pl&lt;/code&gt;を取り出してきて適当に新しいフォルダを作る．&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;$ mkdir julius
@@ -129,7 +131,7 @@ cmscore1: 1.000
 score1: -2283.777832
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;こんな感じに今まで登録されていな方単語が認識されるようになった．
+&lt;p&gt;こんな感じに今まで登録されていな方単語が認識されるようになった．&lt;br /&gt;
 ※注意すべきなのが，登録した単語ありきの認識をするため，なにかしらの言葉を発すると登録した単語のどれかに割り当ててしまうということ．&lt;/p&gt;
 
 &lt;h3 id=&#34;rubyとのつなぎ込み&#34;&gt;Rubyとのつなぎ込み&lt;/h3&gt;
@@ -199,8 +201,19 @@ hey_raspi.run(julius)
 
 &lt;p&gt;は次回〜&lt;/p&gt;
 
+&lt;h2 id=&#34;まとめ&#34;&gt;まとめ&lt;/h2&gt;
+
 &lt;p&gt;とりあえず，今回は音声認識BOTの外枠だけ作成した．&lt;br /&gt;
-これの中身を変えるとそれぞれの好きなBOTが作れるのではないでしょうか〜&lt;/p&gt;
+これの中身を変えるとそれぞれの好きなBOTが作れるのではないでしょうか〜&lt;br /&gt;
+次回はOpenWeatherMapを使って音声で天気を取ってきます．&lt;/p&gt;
+
+&lt;h4 id=&#34;ref&#34;&gt;ref&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.livedoor.jp/sce_info3-craft/archives/9242956.html&#34;&gt;[Raspberry Pi]USBマイクと音声認識ソフトJuliusを使って音声認識を試す(2)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://iotnews.jp/archives/8094&#34;&gt;Raspberry Piで音声認識する人工知能をつくってみる&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://qiita.com/t_oginogin/items/f0ba9d2eb622c05558f4&#34;&gt;Raspberry Piで音声認識&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     

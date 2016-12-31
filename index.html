@@ -186,19 +186,21 @@
 
             <div class="article-entry" itemprop="articleBody">
                 <p>
-                    ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+                    ラズパイにSiriみたいなことをさせたい．
+が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
 仕様 今回作るもののイメージはこんな感じ
 私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
 実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; Ruby
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+天気情報取得 =&gt; OpenWeatherMap(Ruby)
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
 手順 Juliusのインストール ディクテーションキット
-- Mac
-http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
-https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
+をダウンロードしてくる
 $ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
 適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
 $ mkdir julius $ cp dictation-kit-v4. ...
                 </p>
                 <p class="article-more-link">

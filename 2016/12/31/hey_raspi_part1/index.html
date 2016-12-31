@@ -20,19 +20,21 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
     <meta property="og:title" content="ラズパイでSiriのような音声認識BOTを作ってみた part1" />
-<meta property="og:description" content="ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+<meta property="og:description" content="ラズパイにSiriみたいなことをさせたい．
+が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
 仕様 今回作るもののイメージはこんな感じ
 私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
 実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; Ruby
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+天気情報取得 =&gt; OpenWeatherMap(Ruby)
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
 手順 Juliusのインストール ディクテーションキット
-- Mac
-http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
-https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
+をダウンロードしてくる
 $ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
 適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
 $ mkdir julius $ cp dictation-kit-v4." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" />
@@ -52,24 +54,26 @@ $ mkdir julius $ cp dictation-kit-v4." />
     
     
 <meta itemprop="name" content="ラズパイでSiriのような音声認識BOTを作ってみた part1">
-<meta itemprop="description" content="ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+<meta itemprop="description" content="ラズパイにSiriみたいなことをさせたい．
+が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
 仕様 今回作るもののイメージはこんな感じ
 私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
 実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; Ruby
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+天気情報取得 =&gt; OpenWeatherMap(Ruby)
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
 手順 Juliusのインストール ディクテーションキット
-- Mac
-http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
-https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
+をダウンロードしてくる
 $ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
 適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
 $ mkdir julius $ cp dictation-kit-v4.">
 
 
 <meta itemprop="dateModified" content="2016-12-31T18:52:59&#43;09:00" />
-<meta itemprop="wordCount" content="258">
+<meta itemprop="wordCount" content="268">
 
 
 
@@ -82,19 +86,21 @@ $ mkdir julius $ cp dictation-kit-v4.">
 
 
 <meta name="twitter:title" content="ラズパイでSiriのような音声認識BOTを作ってみた part1"/>
-<meta name="twitter:description" content="ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
+<meta name="twitter:description" content="ラズパイにSiriみたいなことをさせたい．
+が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
 仕様 今回作るもののイメージはこんな感じ
 私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
 実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; Ruby
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み． 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
+天気情報取得 =&gt; OpenWeatherMap(Ruby)
+JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
 手順 Juliusのインストール ディクテーションキット
-- Mac
-http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux
-https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz をダウンロードしてくる
+- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
+をダウンロードしてくる
 $ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
 適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる． 今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
+&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
 $ mkdir julius $ cp dictation-kit-v4."/>
 <meta name="twitter:site" content="@johshisha"/>
 
@@ -223,7 +229,8 @@ $ mkdir julius $ cp dictation-kit-v4."/>
             <div class="article-entry" itemprop="articleBody">
                 
 
-<p>ラズパイにSiriみたいなことをさせようと思ったが，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．</p>
+<p>ラズパイにSiriみたいなことをさせたい．<br />
+が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．</p>
 
 <h2 id="仕様">仕様</h2>
 
@@ -240,9 +247,9 @@ Raspi「今日の天気は晴れです」
 <h2 id="実装">実装</h2>
 
 <p>音声認識 =&gt; <a href="http://julius.osdn.jp/">Julius</a><br />
-天気情報取得 =&gt; Ruby</p>
+天気情報取得 =&gt;  <a href="http://openweathermap.org/">OpenWeatherMap</a>(Ruby)</p>
 
-<p>JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
+<p>JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．<br />
 常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．</p>
 
 <h2 id="手順">手順</h2>
@@ -250,11 +257,12 @@ Raspi「今日の天気は晴れです」
 <h3 id="juliusのインストール">Juliusのインストール</h3>
 
 <p>ディクテーションキット<br />
-- Mac<br />
+- Mac
 <a href="http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz">http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz</a>
-- Linux<br />
-<a href="https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz">https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz</a>
-をダウンロードしてくる</p>
+- Linux
+<a href="https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz">https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz</a></p>
+
+<p>をダウンロードしてくる</p>
 
 <pre><code>$ tar xvzf dictation-kit-v4.3.1-osx.tgz
 $ cd dictation-kit-v4.3.1-osx
@@ -273,7 +281,7 @@ sentence1:  こんにちは 。
 </code></pre>
 
 <p>うまくうごいてそう
-このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
+このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．<br />
 今回は<code>model</code>,<code>am-gmm.jconf</code>,<code>bin/julius</code>,<code>yomi2voca.pl</code>を取り出してきて適当に新しいフォルダを作る．</p>
 
 <pre><code>$ mkdir julius
@@ -335,7 +343,7 @@ cmscore1: 1.000
 score1: -2283.777832
 </code></pre>
 
-<p>こんな感じに今まで登録されていな方単語が認識されるようになった．
+<p>こんな感じに今まで登録されていな方単語が認識されるようになった．<br />
 ※注意すべきなのが，登録した単語ありきの認識をするため，なにかしらの言葉を発すると登録した単語のどれかに割り当ててしまうということ．</p>
 
 <h3 id="rubyとのつなぎ込み">Rubyとのつなぎ込み</h3>
@@ -405,8 +413,19 @@ hey_raspi.run(julius)
 
 <p>は次回〜</p>
 
+<h2 id="まとめ">まとめ</h2>
+
 <p>とりあえず，今回は音声認識BOTの外枠だけ作成した．<br />
-これの中身を変えるとそれぞれの好きなBOTが作れるのではないでしょうか〜</p>
+これの中身を変えるとそれぞれの好きなBOTが作れるのではないでしょうか〜<br />
+次回はOpenWeatherMapを使って音声で天気を取ってきます．</p>
+
+<h4 id="ref">ref</h4>
+
+<ul>
+<li><a href="http://blog.livedoor.jp/sce_info3-craft/archives/9242956.html">[Raspberry Pi]USBマイクと音声認識ソフトJuliusを使って音声認識を試す(2)</a></li>
+<li><a href="https://iotnews.jp/archives/8094">Raspberry Piで音声認識する人工知能をつくってみる</a></li>
+<li><a href="http://qiita.com/t_oginogin/items/f0ba9d2eb622c05558f4">Raspberry Piで音声認識</a></li>
+</ul>
 
             </div>
 
