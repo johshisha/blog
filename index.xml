@@ -219,32 +219,6 @@ hey_raspi.run(julius)
     </item>
     
     <item>
-      <title></title>
-      <link>https://johshisha.github.io/blog/about/</link>
-      <pubDate>Sun, 18 Dec 2016 02:08:49 +0900</pubDate>
-      
-      <guid>https://johshisha.github.io/blog/about/</guid>
-      <description>
-
-&lt;h2 id=&#34;johshisha&#34;&gt;@johshisha&lt;/h2&gt;
-
-
-&lt;figure &gt;
-    
-        &lt;img src=&#34;../banners/profile.jpg&#34; width=&#34;220&#34; /&gt;
-    
-    
-&lt;/figure&gt;
-
-
-&lt;p&gt;関西在住 修士1年&lt;br /&gt;
-機械学習系の研究をしている&lt;/p&gt;
-
-&lt;!-- [研究ページ](https://johshisha.github.io/) --&gt;
-</description>
-    </item>
-    
-    <item>
       <title>hello_hugo</title>
       <link>https://johshisha.github.io/blog/2016/12/17/hello_hugo</link>
       <pubDate>Sat, 17 Dec 2016 14:46:39 +0900</pubDate>
