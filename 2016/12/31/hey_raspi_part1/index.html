@@ -20,22 +20,7 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
     <meta property="og:title" content="ラズパイでSiriのような音声認識BOTを作ってみた part1" />
-<meta property="og:description" content="ラズパイにSiriみたいなことをさせたい．
-が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
-仕様 今回作るもののイメージはこんな感じ
-私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
-実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; OpenWeatherMap(Ruby)
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
-常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
-手順 Juliusのインストール ディクテーションキット
-- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
-をダウンロードしてくる
-$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
-適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
-今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
-$ mkdir julius $ cp dictation-kit-v4." />
+<meta property="og:description" content="ラズパイにSiriみたいなことをさせたい． が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する． 仕様 今" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" />
 
@@ -54,26 +39,11 @@ $ mkdir julius $ cp dictation-kit-v4." />
     
     
 <meta itemprop="name" content="ラズパイでSiriのような音声認識BOTを作ってみた part1">
-<meta itemprop="description" content="ラズパイにSiriみたいなことをさせたい．
-が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
-仕様 今回作るもののイメージはこんな感じ
-私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
-実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; OpenWeatherMap(Ruby)
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
-常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
-手順 Juliusのインストール ディクテーションキット
-- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
-をダウンロードしてくる
-$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
-適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
-今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
-$ mkdir julius $ cp dictation-kit-v4.">
+<meta itemprop="description" content="ラズパイにSiriみたいなことをさせたい． が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する． 仕様 今">
 
 
 <meta itemprop="dateModified" content="2016-12-31T18:52:59&#43;09:00" />
-<meta itemprop="wordCount" content="268">
+<meta itemprop="wordCount" content="1565">
 
 
 
@@ -86,22 +56,7 @@ $ mkdir julius $ cp dictation-kit-v4.">
 
 
 <meta name="twitter:title" content="ラズパイでSiriのような音声認識BOTを作ってみた part1"/>
-<meta name="twitter:description" content="ラズパイにSiriみたいなことをさせたい．
-が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する．
-仕様 今回作るもののイメージはこんな感じ
-私「ヘイ，ラズパイ！」 Raspi「ポンポンっ」（コマンド受け付けますよ音） 私「今日の天気は？」 Raspi「今日の天気は晴れです」  これを再現したい
-実装 音声認識 =&gt; Julius
-天気情報取得 =&gt; OpenWeatherMap(Ruby)
-JuliusはOSSの音声認識エンジンで，認識精度自体はDocomo等の音声認識APIには劣るが，ローカルで動き，単語の登録等ができるのが強み．
-常時認識しておきたいのでWebAPIを用いるよりこちらのほうがよいと判断した．
-手順 Juliusのインストール ディクテーションキット
-- Mac http://sourceforge.jp/projects/julius/downloads/60416/dictation-kit-v4.3.1-osx.tgz - Linux https://ja.osdn.net/projects/julius/downloads/60416/dictation-kit-v4.3.1-linux.tgz
-をダウンロードしてくる
-$ tar xvzf dictation-kit-v4.3.1-osx.tgz $ cd dictation-kit-v4.3.1-osx $ ./run-gmm.sh  これでJuliusが起動するはず (最新版は4.4 https://ja.osdn.net/projects/julius/downloads/66544/dictation-kit-v4.4.zip だが，試してみた感じ精度が悪そうだったのでとりあえず4.3を使う)
-適当にしゃべってみると
-&lt;&lt;&lt; please speak &gt;&gt;&gt;Warning: strip: sample 0-66 has zero value, stripped pass1_best: こんにちは sentence1: こんにちは 。 &lt;&lt;&lt; please speak &gt;&gt;&gt;  うまくうごいてそう このdictation-kitの中には必要ないものも多いので，必要なものだけを取り出してくる．
-今回はmodel,am-gmm.jconf,bin/julius,yomi2voca.plを取り出してきて適当に新しいフォルダを作る．
-$ mkdir julius $ cp dictation-kit-v4."/>
+<meta name="twitter:description" content="ラズパイにSiriみたいなことをさせたい． が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する． 仕様 今"/>
 <meta name="twitter:site" content="@johshisha"/>
 
 
@@ -449,10 +404,7 @@ hey_raspi.run(julius)
         
 
 
-  <script type="text/javascript">
-   talaria.init({REPOSITORY_NAME: 'hugo-theme-arch',
-                 GITHUB_USERNAME: 'johshisha'});
-  </script>
+  
     </article>
 
     <section id="comments">
@@ -598,7 +550,7 @@ hey_raspi.run(julius)
 <footer id="footer">
   <div class="outer">
     <div id="footer-info" class="inner">
-	    &copy; 2016 <i class="fa fa-github"></i> <a href="https://github.com/johshisha">johshisha</a>. <br>
+	    &copy; 2017 <i class="fa fa-github"></i> <a href="https://github.com/johshisha">johshisha</a>. <br>
       Powered by <a href="//gohugo.io">Hugo</a>. Theme by <a href="https://github.com/syui/hugo-theme-arch">hugo-theme-arch</a>.
     </div>
   </div>
