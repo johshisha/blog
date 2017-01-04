@@ -218,21 +218,5 @@ hey_raspi.run(julius)
 </description>
     </item>
     
-    <item>
-      <title>hello_hugo</title>
-      <link>https://johshisha.github.io/blog/2016/12/17/hello_hugo</link>
-      <pubDate>Sat, 17 Dec 2016 14:46:39 +0900</pubDate>
-      
-      <guid>https://johshisha.github.io/blog/2016/12/17/hello_hugo</guid>
-      <description>
-
-&lt;h1 id=&#34;hello-hugo&#34;&gt;Hello Hugo&lt;/h1&gt;
-
-&lt;h2 id=&#34;this-is-first-post&#34;&gt;This is first post&lt;/h2&gt;
-
-&lt;p&gt;これはテスト用の記事です．&lt;/p&gt;
-</description>
-    </item>
-    
   </channel>
 </rss>
