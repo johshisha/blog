@@ -2,15 +2,12 @@
 <html lang="ja">
 <head>
     
-    <title>johshisha&#39;s blog</title>
+    <title>rails testしたらセグフォで怒られた</title>
     <meta name="generator" content="Hugo 0.17" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
     <meta name="description" content="johshisha&#39;s blog">
-    
-      <link href="https://johshisha.github.io/blog/index.xml" rel="alternate" type="application/rss+xml" title="johshisha&#39;s blog" />
-      <link href="https://johshisha.github.io/blog/index.xml" rel="feed" type="application/rss+xml" title="johshisha&#39;s blog" />
     
     <link rel="icon" href="https://johshisha.github.io/blog/favicon.ico">
     <link rel="apple-touch-icon" href="https://johshisha.github.io/blog/apple-touch-icon.png" />
@@ -22,10 +19,10 @@
     <link rel="stylesheet" href="https://johshisha.github.io/blog/css/font.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
-    <meta property="og:title" content="johshisha&#39;s blog" />
-<meta property="og:description" content="" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://johshisha.github.io/blog/" />
+    <meta property="og:title" content="rails testしたらセグフォで怒られた" />
+<meta property="og:description" content="エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://johshisha.github.io/blog/2017/01/05/rails_test_segmentation_fault" />
 
 
 <meta property="og:updated_time" content="2017-01-05T17:48:53&#43;09:00"/>
@@ -38,13 +35,31 @@
 
 
 
-    
-    
-<meta itemprop="name" content="johshisha&#39;s blog">
-<meta itemprop="description" content="">
-
 
     
+    
+<meta itemprop="name" content="rails testしたらセグフォで怒られた">
+<meta itemprop="description" content="エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details.">
+
+
+<meta itemprop="dateModified" content="2017-01-05T17:48:53&#43;09:00" />
+<meta itemprop="wordCount" content="292">
+
+
+
+<meta itemprop="keywords" content="error,raspberrypi,rails,raspberrypi,音声認識," />
+
+    
+
+  <meta name="twitter:card" content="summary"/>
+
+
+
+<meta name="twitter:title" content="rails testしたらセグフォで怒られた"/>
+<meta name="twitter:description" content="エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details."/>
+<meta name="twitter:site" content="@johshisha"/>
+
+
     <script src="https://johshisha.github.io/blog/bower_components/jquery/dist/jquery-2.2.0.min.js "></script>
     
     <script src="https://johshisha.github.io/blog/fancybox/jquery.fancybox.pack.js"></script>
@@ -96,9 +111,7 @@ ga('send', 'pageview');
 <body>
 <div class="container">
 
-
-<div id="container">
-    <header id="header">
+<header id="header">
   <div id="header-main" class="header-inner">
     <div class="outer">
 
@@ -137,28 +150,12 @@ ga('send', 'pageview');
 </header>
 
 
-    <div class="outer">
-
+<div id="container">
+   <div class="outer">
     <section id="main">
-
-    <div class="article-inner-first">
-
-	<h2>
-		適当にエンジニア系のことを書くブログ
-	</h2>
-	
-
-</div>
-	
-
-    
-    
-    <article class="article article-type-post" itemscope="" itemprop="blogPost">
-
-	    <div class="article-inner">
-
+    <article>
+        <div class="article-inner">
             
-            </a>
 
             <header class="article-header">
     <a href="https://johshisha.github.io/blog/2017/01/05/rails_test_segmentation_fault" class="permalink">
@@ -195,86 +192,96 @@ ga('send', 'pageview');
 </header>
 
             <div class="article-entry" itemprop="articleBody">
-                <p>
-                    エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details. ...
-                </p>
-                <p class="article-more-link">
-                    <a href="https://johshisha.github.io/blog/2017/01/05/rails_test_segmentation_fault">
-			    Read more
-			    
-                    </a>
-                </p>
+                
+
+<h2 id="エラー">エラー</h2>
+
+<p>railsのテストを実行したらセグフォで怒られた．</p>
+
+<pre><code>$ rails test
+/Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
+
+-- Crash Report log information --------------------------------------------
+   See Crash Report log file under the one of following:
+     * ~/Library/Logs/CrashReporter
+     * /Library/Logs/CrashReporter
+     * ~/Library/Logs/DiagnosticReports
+     * /Library/Logs/DiagnosticReports
+   for more details.
+︙
+</code></pre>
+
+<p>のようなエラーが出た．</p>
+
+<p>ちなみに<code>test:models</code>のように部分的にテストするとちゃんと動く．
+いろいろ試してもダメだったが，結局のところよくわからんが，再起動したら治った．</p>
+
+<h2 id="結論">結論</h2>
+
+<p>再起動は偉大．</p>
+
+<h3 id="メモ-実行時の出力をファイルに書き出す">[メモ]実行時の出力をファイルに書き出す</h3>
+
+<p>エラーログが多すぎて流れきってしまってエラーを追えないとき</p>
+
+<pre><code>$ rails test 2&gt;log.txt
+</code></pre>
+
+<p>でファイルに出力できる．
+<code>2</code>は標準エラー出力，<code>1</code>は標準出力．<br />
+ちなみに両方出力する場合は，</p>
+
+<pre><code>$ [comannd] 1&gt;log.txt 2&gt;&amp;1 # こうする
+$ [comannd] 1&gt;log.txt 2&gt;log.txt # これは上書きしてしまうので間違い
+</code></pre>
+
             </div>
-	    
-        </div>
-    </article>
-    
-    <article class="article article-type-post" itemscope="" itemprop="blogPost">
 
-	    <div class="article-inner">
-
-            
-            </a>
-
-            <header class="article-header">
-    <a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1" class="permalink">
-    <h1 class="article-title" itemprop="name">
-        ラズパイでSiriのような音声認識BOTを作ってみた part1
-    </h1>
+            <footer class="article-footer">
+    <a href="http://twitter.com/share?url=https%3a%2f%2fjohshisha.github.io%2fblog%2f2017%2f01%2f05%2frails_test_segmentation_fault&text=rails%20test%e3%81%97%e3%81%9f%e3%82%89%e3%82%bb%e3%82%b0%e3%83%95%e3%82%a9%e3%81%a7%e6%80%92%e3%82%89%e3%82%8c%e3%81%9f" target="_blank" title="Twitter" >
+    	<span class="article-share-link">
+    	    Share
+	</span>
     </a>
-	<time datetime="2016-12-31 18:52:59 &#43;0900 JST" itemprop="datePublished">2016-12-31</time>
-	
-    <div class="article-meta">
-
-        
-        
-        <div class="article-category">
-            <i class="fa fa-folder"></i>
-            
-            <a class="article-category-link" href="https://johshisha.github.io/blog/categories/raspberrypi">RaspberryPi</a>
-            
-            
-        </div>
-        
-        
-        
-        <div class="article-category">
-		<i class="fa fa-chevron-right"></i>
-		
-            
-            <a class="article-category-link" href="https://johshisha.github.io/blog/tags/raspberrypi">RaspberryPi</a>
-            , 
-            
-            <a class="article-category-link" href="https://johshisha.github.io/blog/tags/%e9%9f%b3%e5%a3%b0%e8%aa%8d%e8%ad%98">音声認識</a>
-            
-            
-        </div>
-        
-    </div>
-</header>
-
-            <div class="article-entry" itemprop="articleBody">
-                <p>
-                    ラズパイにSiriみたいなことをさせたい． が，マイクとスピーカの購入がまだなのでとりあえず手元にあるMacで似たような処理を再現する． 仕様 今 ...
-                </p>
-                <p class="article-more-link">
-                    <a href="https://johshisha.github.io/blog/2016/12/31/hey_raspi_part1">
-			    Read more
-			    
-                    </a>
-                </p>
-            </div>
-	    
-        </div>
-    </article>
+    
     
 
-    <nav id="page-nav">
+    <a href="https://johshisha.github.io/blog/2017/01/05/rails_test_segmentation_fault/#disqus_thread" class="article-comment-link">
+        Comments
+    </a>
+    
+</footer>
 
-</nav>
+        </div>
 
+        
+
+
+  
+    </article>
+
+    <section id="comments">
+
+        <div id="disqus_thread">
+            <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'https-johshisha-github-io-blog';
+    var disqus_identifier = 'https:\/\/johshisha.github.io\/blog\/2017\/01\/05\/rails_test_segmentation_fault';
+    var disqus_title = 'rails testしたらセグフォで怒られた';
+    var disqus_url = 'https:\/\/johshisha.github.io\/blog\/2017\/01\/05\/rails_test_segmentation_fault';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        </div>
+    </section>
 </section>
-
 
     <aside id="sidebar">
     
@@ -391,7 +398,7 @@ ga('send', 'pageview');
     
 </aside>
 
-    </div>
+</div>
 </div>
 
 <footer id="footer">
