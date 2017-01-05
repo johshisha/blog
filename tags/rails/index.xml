@@ -17,6 +17,9 @@
       <guid>https://johshisha.github.io/blog/2017/01/05/rails_test_segmentation_fault</guid>
       <description>
 
+&lt;p&gt;さっきまで動いていた&lt;code&gt;rails test&lt;/code&gt;が急に動かなくなった．&lt;br /&gt;
+発生した理由，治った理由がわからなく，ぜんぜん大した内容ではないがメモとして残しておく．&lt;/p&gt;
+
 &lt;h2 id=&#34;エラー&#34;&gt;エラー&lt;/h2&gt;
 
 &lt;p&gt;railsのテストを実行したらセグフォで怒られた．&lt;/p&gt;
@@ -37,7 +40,7 @@ ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
 
 &lt;p&gt;のようなエラーが出た．&lt;/p&gt;
 
-&lt;p&gt;ちなみに&lt;code&gt;test:models&lt;/code&gt;のように部分的にテストするとちゃんと動く．
+&lt;p&gt;ちなみに&lt;code&gt;test:models&lt;/code&gt;のように部分的にテストするとちゃんと動く．&lt;br /&gt;
 いろいろ試してもダメだったが，結局のところよくわからんが，再起動したら治った．&lt;/p&gt;
 
 &lt;h2 id=&#34;結論&#34;&gt;結論&lt;/h2&gt;
@@ -51,7 +54,7 @@ ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
 &lt;pre&gt;&lt;code&gt;$ rails test 2&amp;gt;log.txt
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;でファイルに出力できる．
+&lt;p&gt;でファイルに出力できる．&lt;br /&gt;
 &lt;code&gt;2&lt;/code&gt;は標準エラー出力，&lt;code&gt;1&lt;/code&gt;は標準出力．&lt;br /&gt;
 ちなみに両方出力する場合は，&lt;/p&gt;
 

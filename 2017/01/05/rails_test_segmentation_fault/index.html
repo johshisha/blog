@@ -20,7 +20,7 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
     <meta property="og:title" content="rails testしたらセグフォで怒られた" />
-<meta property="og:description" content="エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details." />
+<meta property="og:description" content="さっきまで動いていたrails testが急に動かなくなった． 発生した理由，治った理由がわからなく，ぜんぜん大した内容ではないがメモとして残し" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://johshisha.github.io/blog/2017/01/05/rails_test_segmentation_fault" />
 
@@ -39,11 +39,11 @@
     
     
 <meta itemprop="name" content="rails testしたらセグフォで怒られた">
-<meta itemprop="description" content="エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details.">
+<meta itemprop="description" content="さっきまで動いていたrails testが急に動かなくなった． 発生した理由，治った理由がわからなく，ぜんぜん大した内容ではないがメモとして残し">
 
 
 <meta itemprop="dateModified" content="2017-01-05T17:48:53&#43;09:00" />
-<meta itemprop="wordCount" content="292">
+<meta itemprop="wordCount" content="362">
 
 
 
@@ -56,7 +56,7 @@
 
 
 <meta name="twitter:title" content="rails testしたらセグフォで怒られた"/>
-<meta name="twitter:description" content="エラー railsのテストを実行したらセグフォで怒られた． $ rails test /Users/[username]/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/activerecord-5.0.0.1/lib/active_record/connection_adapters/sqlite3_adapter.rb:27: [BUG] Segmentation fault at 0x00000000000110 ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14] -- Crash Report log information -------------------------------------------- See Crash Report log file under the one of following: * ~/Library/Logs/CrashReporter * /Library/Logs/CrashReporter * ~/Library/Logs/DiagnosticReports * /Library/Logs/DiagnosticReports for more details."/>
+<meta name="twitter:description" content="さっきまで動いていたrails testが急に動かなくなった． 発生した理由，治った理由がわからなく，ぜんぜん大した内容ではないがメモとして残し"/>
 <meta name="twitter:site" content="@johshisha"/>
 
 
@@ -194,6 +194,9 @@ ga('send', 'pageview');
             <div class="article-entry" itemprop="articleBody">
                 
 
+<p>さっきまで動いていた<code>rails test</code>が急に動かなくなった．<br />
+発生した理由，治った理由がわからなく，ぜんぜん大した内容ではないがメモとして残しておく．</p>
+
 <h2 id="エラー">エラー</h2>
 
 <p>railsのテストを実行したらセグフォで怒られた．</p>
@@ -214,7 +217,7 @@ ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
 
 <p>のようなエラーが出た．</p>
 
-<p>ちなみに<code>test:models</code>のように部分的にテストするとちゃんと動く．
+<p>ちなみに<code>test:models</code>のように部分的にテストするとちゃんと動く．<br />
 いろいろ試してもダメだったが，結局のところよくわからんが，再起動したら治った．</p>
 
 <h2 id="結論">結論</h2>
@@ -228,7 +231,7 @@ ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
 <pre><code>$ rails test 2&gt;log.txt
 </code></pre>
 
-<p>でファイルに出力できる．
+<p>でファイルに出力できる．<br />
 <code>2</code>は標準エラー出力，<code>1</code>は標準出力．<br />
 ちなみに両方出力する場合は，</p>
 
